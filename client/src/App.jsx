@@ -1,13 +1,27 @@
 // App.js
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import QRCode from 'react-qr-code';
+import html2canvas from 'html2canvas';
 
 const App = () => {
   const [qrValue, setQrValue] = useState('');
+  const qrRef = useRef(null);
+
+  const handleDownload = () => {
+    if (qrRef.current) {
+      html2canvas(qrRef.current).then((canvas) => {
+        const image = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = 'qr-code.png';
+        link.click();
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-white to-pink-100 px-4 gap-6">
-      <h1 className="text-4xl font-bold text-gray-800">ScanSutra </h1>
+      <h1 className="text-4xl font-bold text-gray-800">ScanSutra</h1>
 
       <input
         type="text"
@@ -31,11 +45,19 @@ const App = () => {
         >
           Example QR
         </button>
+
+        {/* Download Button */}
+        <button
+          onClick={handleDownload}
+          className="px-5 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition"
+        >
+          Download QR
+        </button>
       </div>
 
       {/* Show QR only if value is not empty */}
       {qrValue.trim() !== '' && (
-        <div className="bg-white p-4 rounded-xl shadow-md mt-4">
+        <div className="bg-white p-4 rounded-xl shadow-md mt-4" ref={qrRef}>
           <QRCode value={qrValue} size={180} />
         </div>
       )}
